@@ -37,11 +37,11 @@
       const rows = 6;
       const cols = 6;
 
-      const partWidth = image.width / cols;
-      const partHeight = image.height / rows;
-      canvas.width = partWidth;
-      canvas.height = partHeight;
       image.onload = function () {
+        const partWidth = image.width / cols;
+        const partHeight = image.height / rows;
+        canvas.width = partWidth;
+        canvas.height = partHeight;
         let html = [];
         for (let i = 0; i < rows; i++) {
           for (let j = 0; j < cols; j++) {
