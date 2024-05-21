@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-size: 0;
+      }
+      .card {
+        display: inline-block;
+        border: 2px solid #ffffff;
+      }
+      body {
+        zoom: 0.8;
+        width: 1050px;
+      }
+    </style>
+  </head>
+  <body>
+    <img
+      id="sourceImage"
+      src="1.png"
+      alt="Source Image"
+      style="display: none"
+    />
+    <canvas id="canvas" style="display: none"></canvas>
+
+    <script>
+      const image = document.getElementById("sourceImage");
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+
+      const rows = 6;
+      const cols = 6;
+
+      const partWidth = image.width / cols;
+      const partHeight = image.height / rows;
+      canvas.width = partWidth;
+      canvas.height = partHeight;
+      image.onload = function () {
+        let html = [];
+        for (let i = 0; i < rows; i++) {
+          for (let j = 0; j < cols; j++) {
+            const x = i * partWidth;
+            const y = j * partHeight;
+            //image 绘制到上下文的元素。允许任何的画布图像源，例如：HTMLImageElement、SVGImageElement、HTMLVideoElement、HTMLCanvasElement、ImageBitmap、OffscreenCanvas 或 VideoFrame。
+            //sx 可选 需要绘制到目标上下文中的，image 的矩形（裁剪）选择框的左上角 X 轴坐标。可以使用 3 参数或 5 参数语法来省略这个参数。
+
+            //sy 可选 需要绘制到目标上下文中的，image 的矩形（裁剪）选择框的左上角 Y 轴坐标。可以使用 3 参数或 5 参数语法来省略这个参数。
+
+            //sWidth 可选 需要绘制到目标上下文中的，image 的矩形（裁剪）选择框的宽度。如果不说明，整个矩形（裁剪）从坐标的 sx 和 sy 开始，到 image 的右下角结束。可以使用 3 参数或 5 参数语法来省略这个参数。使用负值将翻转这个图像。
+
+            //sHeight 可选 需要绘制到目标上下文中的，image的矩形（裁剪）选择框的高度。使用负值将翻转这个图像。
+
+            //dx image 的左上角在目标画布上 X 轴坐标。
+
+            //dy  image 的左上角在目标画布上 Y 轴坐标。
+
+            // dWidth image 在目标画布上绘制的宽度。允许对绘制的 image 进行缩放。如果不说明，在绘制时 image 宽度不会缩放。注意，这个参数不包含在 3 参数语法中。
+
+            // dHeight image 在目标画布上绘制的高度。允许对绘制的 image 进行缩放。如果不说明，在绘制时 image 高度不会缩放。注意，这个参数不包含在 3 参数语法中。
+            context.drawImage(
+              image,
+              x,
+              y,
+              partWidth,
+              partHeight,
+              0,
+              0,
+              partWidth,
+              partHeight
+            );
+            // const part = new Image();
+            html.push(template(canvas.toDataURL("image/png")));
+          }
+        }
+        shuffleArray(html);
+        document.body.innerHTML = html.join("");
+      };
+      function template(src) {
+        let tpl = `<div class="card" draggable="true" ondragstart="handleDragStart(event,this)" ondragover="handleDragOver(event,this)" ondragend="handleDragEnd(event,this)" ondrop="handleDrop(event,this)" ondragenter="handleDragEnter(event,this)">
+                 <img src="${src}" draggable="false" alt="">
+         </div>`;
+        return tpl;
+      }
+      function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+      let fromDom = null,
+        toDom = null,
+        lastDom = null;
+      const handleDragStart = (e, dom) => {
+        console.log(1);
+        lastDom = fromDom = dom;
+        dom.style.opacity = 0.5;
+      };
+      function handleDrop(e, dom) {
+        console.log("drop");
+        dom.style.opacity = "";
+        fromDom = null;
+        toDom = null;
+      }
+      function handleDragEnd(e, dom) {
+        console.log("end");
+        dom.style.opacity = "1";
+        toDom = null;
+      }
+      function handleDragEnter(e, dom) {
+        toDom = dom;
+        if (fromDom == lastDom) {
+          //第一次调换
+          swapDom(lastDom, toDom);
+          lastDom = toDom;
+        } else {
+          if (lastDom == toDom) {
+            return;
+          }
+          swapDom(fromDom, lastDom);
+          swapDom(fromDom, toDom);
+          lastDom = toDom;
+        }
+      }
+      function swapDom(a, b) {
+        let temp = a.innerHTML;
+        a.innerHTML = b.innerHTML;
+        b.innerHTML = temp;
+      }
+
+      const handleDragOver = (e, dom) => {
+        e.preventDefault();
+        e.dataTransfer.effectAllowed = "move";
+      };
+    </script>
+  </body>
+</html>
